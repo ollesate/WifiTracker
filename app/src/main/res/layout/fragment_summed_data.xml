@@ -9,7 +9,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Connected Wifis"
+        android:text="Todays wificonnections"
         android:id="@+id/textView3"
         android:layout_gravity="center_horizontal|top"
         android:layout_alignParentTop="true"

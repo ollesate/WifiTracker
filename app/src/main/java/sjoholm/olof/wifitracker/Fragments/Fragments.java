@@ -11,16 +11,6 @@ import sjoholm.olof.wifitracker.R;
  */
 public class Fragments {
 
-    public static void showDiagramFragment(MainActivity activity){
-        Fragment fragment = new DiagramFragment();
-        showFragment(activity, fragment);
-    }
-
-    public static void showPieChartFragment(MainActivity activity){
-        Fragment fragment = new BarChartTest();
-        showFragment(activity, fragment);
-    }
-
     public static void showFragment(MainActivity activity, Fragment fragment){
         FragmentManager fragmentManager = activity.getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.fragment_container, fragment).commit();
