@@ -18,7 +18,7 @@ public class TimeUtil {
 
     private static Context context;
 
-    public static final void initialize(Context context){
+    public static final void setUp(Context context){
         TimeUtil.context = context;
     }
 

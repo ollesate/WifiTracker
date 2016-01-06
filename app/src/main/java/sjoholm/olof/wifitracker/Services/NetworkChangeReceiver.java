@@ -11,7 +11,7 @@ import java.sql.Date;
 import java.util.Calendar;
 
 import sjoholm.olof.wifitracker.Storage.WifiStatesDatabase;
-import sjoholm.olof.wifitracker.Models.WifiDataState;
+import sjoholm.olof.wifitracker.Models.WifiConnection;
 
 /**
  * Created by olof on 2015-12-22.
@@ -30,29 +30,29 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
         if(intent.getExtras().getInt("networkType") == NETWORK_TYPE_WIFI
                 && !intent.getExtras().containsKey("otherNetwork")) { //endast om otherNetwork inte finns, för det sållar bort dubletter
 
-            WifiDataState wifiDataState = getWifiEventFromExtra(intent.getExtras());
+            WifiConnection wifiConnection = getWifiEventFromExtra(intent.getExtras());
 
             if(disconnected(intent.getExtras())){
-                db.updatePreviousIfExists(wifiDataState);
+                db.updatePreviousIfExists(wifiConnection);
             }else{
-                db.insert(wifiDataState);
+                db.insert(wifiConnection);
             }
 
         }
 
     }
 
-    private WifiDataState getWifiEventFromExtra(Bundle bundle){
-        WifiDataState wifiDataState = new WifiDataState();
+    private WifiConnection getWifiEventFromExtra(Bundle bundle){
+        WifiConnection wifiConnection = new WifiConnection();
 
         NetworkInfo networkInfo = (NetworkInfo) bundle.get(WifiManager.EXTRA_NETWORK_INFO);
 
-        wifiDataState.state = networkInfo.getState();
-        wifiDataState.date = new Date(Calendar.getInstance().getTimeInMillis()); //Hämtar stundens datum/tid
-        wifiDataState.wifiName = bundle.getString("extraInfo"); //Ger namnet på SSID
-        wifiDataState.timeMillis = Calendar.getInstance().getTimeInMillis();
+        wifiConnection.state = networkInfo.getState();
+        wifiConnection.date = new Date(Calendar.getInstance().getTimeInMillis()); //Hämtar stundens datum/tid
+        wifiConnection.wifiName = bundle.getString("extraInfo"); //Ger namnet på SSID
+        wifiConnection.timeMillis = Calendar.getInstance().getTimeInMillis();
 
-        return wifiDataState;
+        return wifiConnection;
     }
 
     private boolean disconnected(Bundle bundle){

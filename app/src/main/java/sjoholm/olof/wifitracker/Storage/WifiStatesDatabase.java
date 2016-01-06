@@ -12,7 +12,7 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import sjoholm.olof.wifitracker.Models.WifiDataState;
+import sjoholm.olof.wifitracker.Models.WifiConnection;
 import sjoholm.olof.wifitracker.Models.WifiDuration;
 
 /**
@@ -57,17 +57,17 @@ public class WifiStatesDatabase extends SQLiteOpenHelper {
         onCreate(sqLiteDatabase);
     }
 
-    private ContentValues toContentValues(WifiDataState wifiDataState){
+    private ContentValues toContentValues(WifiConnection wifiConnection){
         ContentValues values = new ContentValues();
-        values.put(Tables.WifiStatusChangedTable.COLUMN_WIFI_NAME, wifiDataState.wifiName);
-        values.put(Tables.WifiStatusChangedTable.COLUMN_STATUS, wifiDataState.state.toString());
-        values.put(Tables.WifiStatusChangedTable.COLUMN_DATE, wifiDataState.date.toString());
-        values.put(Tables.WifiStatusChangedTable.COLUMN_TIME_MILLIS, wifiDataState.timeMillis);
-        values.put(Tables.WifiStatusChangedTable.COLUMN_DURATION_MILLIS, wifiDataState.durationMillis);
+        values.put(Tables.WifiStatusChangedTable.COLUMN_WIFI_NAME, wifiConnection.wifiName);
+        values.put(Tables.WifiStatusChangedTable.COLUMN_STATUS, wifiConnection.state.toString());
+        values.put(Tables.WifiStatusChangedTable.COLUMN_DATE, wifiConnection.date.toString());
+        values.put(Tables.WifiStatusChangedTable.COLUMN_TIME_MILLIS, wifiConnection.timeMillis);
+        values.put(Tables.WifiStatusChangedTable.COLUMN_DURATION_MILLIS, wifiConnection.durationMillis);
         return values;
     }
 
-    public void insert(WifiDataState insertDataState){
+    public void insert(WifiConnection insertDataState){
 
         SQLiteDatabase db = getWritableDatabase();
         db.insert(Tables.WifiStatusChangedTable.TABLE_NAME, null, toContentValues(insertDataState));
@@ -75,7 +75,7 @@ public class WifiStatesDatabase extends SQLiteOpenHelper {
         Log.d(TAG, "Inserted : " + insertDataState.toString());
     }
 
-    public void updatePreviousIfExists(WifiDataState current){
+    public void updatePreviousIfExists(WifiConnection current){
 
         SQLiteDatabase db = getWritableDatabase();
         Cursor last = db.rawQuery("SELECT * FROM " + Tables.WifiStatusChangedTable.TABLE_NAME + " ORDER BY " + Tables.WifiStatusChangedTable._ID + " DESC LIMIT 1", new String[]{});
@@ -87,7 +87,7 @@ public class WifiStatesDatabase extends SQLiteOpenHelper {
             int columnIndex = last.getColumnIndexOrThrow(Tables.WifiStatusChangedTable._ID);
             int id = last.getInt(columnIndex);
 
-            WifiDataState previous = cursorToModel(last);
+            WifiConnection previous = cursorToModel(last);
             previous.durationMillis = current.timeMillis - previous.timeMillis; //Do the calculation
 
             update(previous, id);
@@ -99,16 +99,16 @@ public class WifiStatesDatabase extends SQLiteOpenHelper {
 
     }
 
-    public void update(WifiDataState wifiDataState, int id){
+    public void update(WifiConnection wifiConnection, int id){
         SQLiteDatabase db = getWritableDatabase();
         db.update(
                 Tables.WifiStatusChangedTable.TABLE_NAME,
-                toContentValues(wifiDataState),
+                toContentValues(wifiConnection),
                 Tables.WifiStatusChangedTable._ID + " = " + String.valueOf(id),
                 new String[]{});
     }
 
-    public ArrayList<WifiDataState> getAllData(){
+    public ArrayList<WifiConnection> getAllData(){
         SQLiteDatabase db = getReadableDatabase();
         Cursor c = db.query(
                 Tables.WifiStatusChangedTable.TABLE_NAME,     //the table to query
@@ -123,7 +123,7 @@ public class WifiStatesDatabase extends SQLiteOpenHelper {
         return cursorToModels(c);
     }
 
-    public ArrayList<WifiDataState> getTodaysData(){
+    public ArrayList<WifiConnection> getTodaysData(){
         SQLiteDatabase db = getReadableDatabase();
         String query = "Select * From " + Tables.WifiStatusChangedTable.TABLE_NAME + " where " + Tables.WifiStatusChangedTable.COLUMN_DATE + " >= date('now', 'start of day')";
         Cursor c = db.rawQuery(query, new String[]{});
@@ -189,8 +189,8 @@ public class WifiStatesDatabase extends SQLiteOpenHelper {
 
 
 
-    private ArrayList<WifiDataState> cursorToModels(Cursor cursor){
-        ArrayList<WifiDataState> items = new ArrayList<>();
+    private ArrayList<WifiConnection> cursorToModels(Cursor cursor){
+        ArrayList<WifiConnection> items = new ArrayList<>();
 
         cursor.moveToFirst();
 
@@ -217,28 +217,28 @@ public class WifiStatesDatabase extends SQLiteOpenHelper {
         return wifiDuration;
     }
 
-    public WifiDataState cursorToModel(Cursor cursor){
-        WifiDataState wifiDataState = new WifiDataState();
+    public WifiConnection cursorToModel(Cursor cursor){
+        WifiConnection wifiConnection = new WifiConnection();
 
-        wifiDataState.wifiName = cursor.getString(
+        wifiConnection.wifiName = cursor.getString(
                 cursor.getColumnIndexOrThrow(Tables.WifiStatusChangedTable.COLUMN_WIFI_NAME));
-        wifiDataState.date = Date.valueOf(
+        wifiConnection.date = Date.valueOf(
                 cursor.getString(
                         cursor.getColumnIndexOrThrow(Tables.WifiStatusChangedTable.COLUMN_DATE))
         );
-        wifiDataState.state = NetworkInfo.State.valueOf(
+        wifiConnection.state = NetworkInfo.State.valueOf(
                 cursor.getString(
                     cursor.getColumnIndexOrThrow(Tables.WifiStatusChangedTable.COLUMN_STATUS)
                 )
         );
-        wifiDataState.timeMillis = cursor.getLong(
+        wifiConnection.timeMillis = cursor.getLong(
                 cursor.getColumnIndexOrThrow(Tables.WifiStatusChangedTable.COLUMN_TIME_MILLIS)
         );
-        wifiDataState.durationMillis = cursor.getLong(
+        wifiConnection.durationMillis = cursor.getLong(
                 cursor.getColumnIndexOrThrow(Tables.WifiStatusChangedTable.COLUMN_DURATION_MILLIS)
         );
 
-        return wifiDataState;
+        return wifiConnection;
     }
 
 

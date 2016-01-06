@@ -20,11 +20,6 @@
         </activity>
 
         <!-- Receive Wi-Fi connection state changes -->
-        <receiver android:name=".Services.WifiReciever">
-            <intent-filter>
-                <action android:name="android.net.wifi.STATE_CHANGE" />
-            </intent-filter>
-        </receiver>
 
         <receiver android:name=".Services.NetworkChangeReceiver" >
             <intent-filter>
