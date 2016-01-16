@@ -14,7 +14,6 @@ public class Tables {
     public static abstract class WifiStatusChangedTable implements BaseColumns{
         public static final String TABLE_NAME = "WifiChanged";
         public static final String COLUMN_DATE = "Date";
-        public static final String COLUMN_STATUS = "Status";
         public static final String COLUMN_WIFI_NAME = "WifiName";
         public static final String COLUMN_TIME_MILLIS = "TimeMillis";
         public static final String COLUMN_DURATION_MILLIS = "DurationMillis";

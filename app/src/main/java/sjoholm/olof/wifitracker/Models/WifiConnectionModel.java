@@ -9,11 +9,10 @@ import sjoholm.olof.wifitracker.Utils.TimeUtil;
 /**
  * Created by olof on 2015-12-22.
  */
-public class WifiConnection {
+public class WifiConnectionModel {
 
     public Date date;
     public String wifiName;
-    public NetworkInfo.State state;
     public long timeMillis;
     public long durationMillis;
 

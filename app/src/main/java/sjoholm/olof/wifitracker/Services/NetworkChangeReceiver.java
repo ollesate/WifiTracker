@@ -11,7 +11,7 @@ import java.sql.Date;
 import java.util.Calendar;
 
 import sjoholm.olof.wifitracker.Storage.WifiStatesDatabase;
-import sjoholm.olof.wifitracker.Models.WifiConnection;
+import sjoholm.olof.wifitracker.Models.WifiConnectionModel;
 
 /**
  * Created by olof on 2015-12-22.
@@ -30,29 +30,28 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
         if(intent.getExtras().getInt("networkType") == NETWORK_TYPE_WIFI
                 && !intent.getExtras().containsKey("otherNetwork")) { //endast om otherNetwork inte finns, för det sållar bort dubletter
 
-            WifiConnection wifiConnection = getWifiEventFromExtra(intent.getExtras());
+            WifiConnectionModel wifiConnectionModel = getWifiEventFromExtra(intent.getExtras());
 
             if(disconnected(intent.getExtras())){
-                db.updatePreviousIfExists(wifiConnection);
+                db.updatePreviousIfExists(wifiConnectionModel);
             }else{
-                db.insert(wifiConnection);
+                db.insert(wifiConnectionModel);
             }
 
         }
 
     }
 
-    private WifiConnection getWifiEventFromExtra(Bundle bundle){
-        WifiConnection wifiConnection = new WifiConnection();
+    private WifiConnectionModel getWifiEventFromExtra(Bundle bundle){
+        WifiConnectionModel wifiConnectionModel = new WifiConnectionModel();
 
         NetworkInfo networkInfo = (NetworkInfo) bundle.get(WifiManager.EXTRA_NETWORK_INFO);
 
-        wifiConnection.state = networkInfo.getState();
-        wifiConnection.date = new Date(Calendar.getInstance().getTimeInMillis()); //Hämtar stundens datum/tid
-        wifiConnection.wifiName = bundle.getString("extraInfo"); //Ger namnet på SSID
-        wifiConnection.timeMillis = Calendar.getInstance().getTimeInMillis();
+        wifiConnectionModel.date = new Date(Calendar.getInstance().getTimeInMillis()); //Hämtar stundens datum/tid
+        wifiConnectionModel.wifiName = bundle.getString("extraInfo"); //Ger namnet på SSID
+        wifiConnectionModel.timeMillis = Calendar.getInstance().getTimeInMillis();
 
-        return wifiConnection;
+        return wifiConnectionModel;
     }
 
     private boolean disconnected(Bundle bundle){
