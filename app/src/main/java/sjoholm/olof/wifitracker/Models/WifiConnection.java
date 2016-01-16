@@ -17,10 +17,8 @@ public class WifiConnection {
     public long timeMillis;
     public long durationMillis;
 
-    public WifiConnection(){}; //Empty constructor
-
     @Override
     public String toString() {
-        return date + " | " + TimeUtil.ToTimeInDigital(timeMillis) + " | "+ wifiName + " | " + TimeUtil.TimeInTextFromHours(durationMillis);
+        return date + " | " + timeMillis + " | "+ wifiName + " | " + TimeUtil.TimeInTextFromHours(durationMillis);
     }
 }

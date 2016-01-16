@@ -168,22 +168,25 @@ public class WifiStatesDatabase extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(query, new String[]{});
         cursor.moveToFirst();
 
-        long firstElementTimeMillis = cursor.getLong(
-                cursor.getColumnIndexOrThrow(Tables.WifiStatusChangedTable.COLUMN_TIME_MILLIS));
+        if(cursor.getCount() > 0) {
 
-        while(!cursor.isAfterLast()){
+            long firstElementTimeMillis = cursor.getLong(
+                    cursor.getColumnIndexOrThrow(Tables.WifiStatusChangedTable.COLUMN_TIME_MILLIS));
 
-            wifiList.add(curstorToModel(cursor));
+            while (!cursor.isAfterLast()) {
 
-            cursor.moveToNext();
+                wifiList.add(curstorToModel(cursor));
+
+                cursor.moveToNext();
+            }
+
+            if(wifiList.size() > 0){
+                WifiDuration firstElement = wifiList.get(0);
+                Log.d(TAG, "wifi " + firstElement.wifiName + ", time " + (Calendar.getInstance().getTime().getTime() - firstElementTimeMillis));
+                firstElement.durationMillis += Calendar.getInstance().getTime().getTime() - firstElementTimeMillis; //Add time
+            }
+
         }
-
-        if(wifiList.size() > 0){
-            WifiDuration firstElement = wifiList.get(0);
-            Log.d(TAG, "wifi " + firstElement.wifiName + ", time " + (Calendar.getInstance().getTime().getTime() - firstElementTimeMillis));
-            firstElement.durationMillis += Calendar.getInstance().getTime().getTime() - firstElementTimeMillis; //Add time
-        }
-
         return wifiList;
     }
 
