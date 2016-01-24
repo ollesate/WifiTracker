@@ -1,7 +1,9 @@
 package sjoholm.olof.wifitracker.Models;
 
-import android.net.NetworkInfo;
+import android.os.Parcel;
+import android.os.Parcelable;
 
+import java.io.Serializable;
 import java.sql.Date;
 
 import sjoholm.olof.wifitracker.Utils.TimeUtil;
@@ -9,7 +11,7 @@ import sjoholm.olof.wifitracker.Utils.TimeUtil;
 /**
  * Created by olof on 2015-12-22.
  */
-public class WifiConnectionModel {
+public class WifiConnectionModel implements Serializable {
 
     public Date date;
     public String wifiName;
@@ -18,6 +20,7 @@ public class WifiConnectionModel {
 
     @Override
     public String toString() {
-        return date + " | " + timeMillis + " | "+ wifiName + " | " + TimeUtil.TimeInTextFromHours(durationMillis);
+        return date + " | " + timeMillis + " | "+ wifiName + " | " + TimeUtil.DurationInHoursAndMinutes(durationMillis);
     }
+
 }

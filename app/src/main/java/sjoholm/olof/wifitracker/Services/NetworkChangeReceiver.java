@@ -10,7 +10,7 @@ import android.os.Bundle;
 import java.sql.Date;
 import java.util.Calendar;
 
-import sjoholm.olof.wifitracker.Storage.WifiStatesDatabase;
+import sjoholm.olof.wifitracker.Storage.WifiDatabase;
 import sjoholm.olof.wifitracker.Models.WifiConnectionModel;
 
 /**
@@ -25,7 +25,7 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        WifiStatesDatabase db = new WifiStatesDatabase(context);
+        WifiDatabase db = new WifiDatabase(context);
 
         if(intent.getExtras().getInt("networkType") == NETWORK_TYPE_WIFI
                 && !intent.getExtras().containsKey("otherNetwork")) { //endast om otherNetwork inte finns, för det sållar bort dubletter

@@ -13,12 +13,29 @@ public class Fragments {
 
     public static void showFragment(MainActivity activity, Fragment fragment){
         FragmentManager fragmentManager = activity.getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.fragment_container, fragment).commit();
+        fragmentManager
+                .beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .commit();
+    }
+
+    public static void addFragment(MainActivity activity, Fragment fragment){
+        FragmentManager fragmentManager = activity.getSupportFragmentManager();
+        fragmentManager
+                .beginTransaction()
+                .replace(R.id.fragment_container, fragment)
+                .addToBackStack("")
+                .commit();
     }
 
     public static void showDataFragment(MainActivity activity){
-        SummedDataFragment fragment = new SummedDataFragment();
+        WifiDataFragment fragment = new WifiDataFragment();
         showFragment(activity, fragment);
+    }
+
+    public static void showNicknamesFragment(MainActivity activity){
+        NicknamesDialog fragment = new NicknamesDialog();
+        addFragment(activity, fragment);
     }
 
 }

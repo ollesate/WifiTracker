@@ -5,6 +5,7 @@ package sjoholm.olof.wifitracker.Storage;
  */
 public class SQLTypes {
 
+    public static final String COMMA_SEP = ", ";
     public static final String TEXT = " TEXT ";
     public static final String LONG = " LONG ";
 

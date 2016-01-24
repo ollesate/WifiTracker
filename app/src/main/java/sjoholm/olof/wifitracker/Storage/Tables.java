@@ -11,7 +11,7 @@ public class Tables {
 
     }
 
-    public static abstract class WifiStatusChangedTable implements BaseColumns{
+    public static abstract class Wifis implements BaseColumns{
         public static final String TABLE_NAME = "WifiChanged";
         public static final String COLUMN_DATE = "Date";
         public static final String COLUMN_WIFI_NAME = "WifiName";
@@ -19,7 +19,7 @@ public class Tables {
         public static final String COLUMN_DURATION_MILLIS = "DurationMillis";
     }
 
-    public static abstract class WifiNicknamesTable implements  BaseColumns{
+    public static abstract class Nicknames implements  BaseColumns{
         public static final String TABLE_NAME = "WifiNicknames";
         public static final String COLUMN_WIFI_NAME = "WifiName";
         public static final String COLUMN_WIFI_NICKNAME = "WifiNickname";

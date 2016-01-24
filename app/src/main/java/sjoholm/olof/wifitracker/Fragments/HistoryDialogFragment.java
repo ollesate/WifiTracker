@@ -7,21 +7,23 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import java.util.ArrayList;
 
+import sjoholm.olof.wifitracker.HistoryItemAdapter;
+import sjoholm.olof.wifitracker.Models.WifiConnectionModel;
 import sjoholm.olof.wifitracker.R;
-import sjoholm.olof.wifitracker.Storage.WifiStatesDatabase;
+import sjoholm.olof.wifitracker.Storage.WifiDatabase;
 
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MoreInfoFragment extends DialogFragment {
+public class HistoryDialogFragment extends DialogFragment {
 
+    public static String EXTRA_LISTVIEW_DATA = "listviewData";
 
-    public MoreInfoFragment() {
+    public HistoryDialogFragment() {
         // Required empty public constructor
     }
 
@@ -35,8 +37,14 @@ public class MoreInfoFragment extends DialogFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
 
-        ArrayAdapter adapter = new ArrayAdapter(getContext(), android.R.layout.simple_list_item_1);
-        adapter.addAll(getDatabaseData());
+        HistoryItemAdapter adapter = new HistoryItemAdapter(getContext(), android.R.layout.simple_list_item_1);
+
+        Bundle bundle = getArguments();
+        if(bundle.containsKey(EXTRA_LISTVIEW_DATA)){
+            ArrayList<WifiConnectionModel> list = (ArrayList< WifiConnectionModel> )bundle.get(EXTRA_LISTVIEW_DATA);
+            adapter.clear();
+            adapter.addAll(list);
+        }
 
         ListView listViewWifiData;
         listViewWifiData = (ListView) view.findViewById(R.id.lvWifiDataMoreInfo);
@@ -44,8 +52,8 @@ public class MoreInfoFragment extends DialogFragment {
 
     }
 
-    private ArrayList getDatabaseData(){
-        WifiStatesDatabase db = new WifiStatesDatabase(getContext());
-        return db.getTodaysData();
+    private ArrayList getDataFromExtra(){
+        WifiDatabase db = new WifiDatabase(getContext());
+        return db.getTodaysConnections();
     }
 }
