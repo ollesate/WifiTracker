@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -15,19 +14,17 @@ import sjoholm.olof.wifitracker.Models.NicknameModel;
 import sjoholm.olof.wifitracker.Models.WifiConnectionModel;
 import sjoholm.olof.wifitracker.Models.WifiDurationModel;
 
-import static sjoholm.olof.wifitracker.Storage.SQLTypes.COMMA_SEP;
-import static sjoholm.olof.wifitracker.Storage.SQLTypes.TEXT;
-
 /**
  * Created by olof on 2015-12-22.
  */
 public class WifiDatabase extends SQLiteOpenHelper {
 
     private static final String TAG = WifiDatabase.class.getSimpleName();
+    private SQLiteDatabase db = getReadableDatabase();
 
     public static final int DATABASE_VERSION = 10;
 
-    private static final String TEXT_TYPE = " TEXT";
+    private static final String TEXT_TYPE = " TEXT_TYPE";
     private static final String COMMA_SEP = ", ";
     private static final String LONG_TYPE = " Long";
 
@@ -44,8 +41,8 @@ public class WifiDatabase extends SQLiteOpenHelper {
     private static final String TABLE_DELETE2 = "DROP TABLE IF EXISTS " + Tables.Nicknames.TABLE_NAME;
     private static final String TABLE_CREATE2 = "CREATE TABLE " + Tables.Nicknames.TABLE_NAME + "("
             + Tables.Nicknames._ID + " INTEGER PRIMARY KEY AUTOINCREMENT" + COMMA_SEP
-            + Tables.Nicknames.COLUMN_WIFI_NAME + TEXT + COMMA_SEP
-            + Tables.Nicknames.COLUMN_WIFI_NICKNAME + TEXT + "NOT NULL" + COMMA_SEP
+            + Tables.Nicknames.COLUMN_WIFI_NAME + SQLTypes.TEXT_TYPE + COMMA_SEP
+            + Tables.Nicknames.COLUMN_WIFI_NICKNAME + SQLTypes.TEXT_TYPE + "NOT NULL" + COMMA_SEP
             + "FOREIGN KEY (" + Tables.Nicknames.COLUMN_WIFI_NAME + ") REFERENCES "
                 + Tables.Wifis.TABLE_NAME + "(" + Tables.Wifis.COLUMN_WIFI_NAME + ")"
             + ")";
@@ -104,34 +101,23 @@ public class WifiDatabase extends SQLiteOpenHelper {
         }
     }
 
-    public void update(WifiConnectionModel wifiConnectionModel, int id){
-        SQLiteDatabase db = getWritableDatabase();
-        db.update(
-                Tables.Wifis.TABLE_NAME,
-                toContentValues(wifiConnectionModel),
-                Tables.Wifis._ID + " = " + String.valueOf(id),
-                new String[]{});
+    public void update(Table table, ContentValues contentValues, int id) {
+        db.update(table.getTableName(), contentValues, table._ID+ " = " + String.valueOf(id), null);
     }
 
-    public ArrayList<WifiConnectionModel> getAllData(){
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor c = db.query(
-                Tables.Wifis.TABLE_NAME,     //the table to query
-                new String[]{},                             //the columns to return
-                null,                                       //the columns for the where
-                null,                                       //the values for the where clause
-                null,                                       //dont group the rows
-                null,                                       //dont filter by row groups
-                null                                        //Sort order
-        );
-
-        return cursorToModels(c);
+    public void updateLastInserted(Table table, ContentValues contentValues) {
+        String[] projection = contentValues.keySet().toArray(new String[]{});
+        Cursor c = db.query(table.getTableName(), projection, null, null, null, null, table._ID, "1");
+        if (c.getCount() == 1) {
+            c.moveToFirst();
+            update(table, contentValues, c.getInt(c.getColumnIndexOrThrow(table._ID)));
+        }
     }
 
     public ArrayList<WifiConnectionModel> getTodaysConnections(){
         SQLiteDatabase db = getReadableDatabase();
         String query = "Select * from " + Tables.Wifis.TABLE_NAME +
-                " where " + Tables.Wifis.COLUMN_DATE + " >= date('now', 'start of day')";
+                " where " + Tables.Wifis.COLUMN_DATE + " >= date('now', 'start of time')";
 
         Cursor c = db.rawQuery(query, new String[]{});
 
@@ -143,13 +129,18 @@ public class WifiDatabase extends SQLiteOpenHelper {
                 lastElement.durationMillis = Calendar.getInstance().getTime().getTime() - lastElement.timeMillis; //Add time
         }
 
+
         return allData;
+    }
+
+    protected Cursor getData(String table, String[] projection) {
+        return db.query(table, projection, null, null, null, null, null);
     }
 
     public ArrayList<WifiConnectionModel> getTodaysConnectionsOfSort(String wifiName){
         SQLiteDatabase db = getReadableDatabase();
         String query = "Select * from " + Tables.Wifis.TABLE_NAME +
-                " where " + Tables.Wifis.COLUMN_DATE + " >= date('now', 'start of day')" +
+                " where " + Tables.Wifis.COLUMN_DATE + " >= date('now', 'start of time')" +
                 " AND " + Tables.Wifis.COLUMN_WIFI_NAME + " = '" + wifiName +"'";
 
         Cursor c = db.rawQuery(query, new String[]{});
@@ -190,7 +181,7 @@ public class WifiDatabase extends SQLiteOpenHelper {
                 ", total ( " + Tables.Wifis.COLUMN_DURATION_MILLIS + ") as " + Tables.Wifis.COLUMN_DURATION_MILLIS +
                 ", " + Tables.Wifis.COLUMN_TIME_MILLIS +
                 " From " + Tables.Wifis.TABLE_NAME +
-                " where " + Tables.Wifis.COLUMN_DATE + " >= date('now', 'start of day')" +
+                " where " + Tables.Wifis.COLUMN_DATE + " >= date('now', 'start of time')" +
                 " GROUP BY " + Tables.Wifis.COLUMN_WIFI_NAME +
                 " order by " + Tables.Wifis.COLUMN_TIME_MILLIS + " desc";
 
@@ -221,107 +212,12 @@ public class WifiDatabase extends SQLiteOpenHelper {
         return wifiList;
     }
 
-    private ArrayList<WifiConnectionModel> cursorToModels(Cursor cursor){
-        ArrayList<WifiConnectionModel> items = new ArrayList<>();
-
-        cursor.moveToFirst();
-
-        while(!cursor.isAfterLast()){
-            items.add(cursorToModel(cursor));
-            cursor.moveToNext();
-        }
-        return items;
-    }
-
-    private WifiDurationModel curstorToModel(Cursor cursor){
-        WifiDurationModel wifiDuration = new WifiDurationModel();
-
-        wifiDuration.wifiName = cursor.getString(
-                cursor.getColumnIndexOrThrow(Tables.Wifis.COLUMN_WIFI_NAME));
-        wifiDuration.durationMillis = cursor.getLong(
-                cursor.getColumnIndexOrThrow(Tables.Wifis.COLUMN_DURATION_MILLIS)
-        );
-
-        return wifiDuration;
-    }
-
-    private WifiConnectionModel cursorToModel(Cursor cursor){
-        WifiConnectionModel wifiConnectionModel = new WifiConnectionModel();
-
-        wifiConnectionModel.wifiName = cursor.getString(
-                cursor.getColumnIndexOrThrow(Tables.Wifis.COLUMN_WIFI_NAME));
-        wifiConnectionModel.date = Date.valueOf(
-                cursor.getString(
-                        cursor.getColumnIndexOrThrow(Tables.Wifis.COLUMN_DATE))
-        );
-        wifiConnectionModel.timeMillis = cursor.getLong(
-                cursor.getColumnIndexOrThrow(Tables.Wifis.COLUMN_TIME_MILLIS)
-        );
-        wifiConnectionModel.durationMillis = cursor.getLong(
-                cursor.getColumnIndexOrThrow(Tables.Wifis.COLUMN_DURATION_MILLIS)
-        );
-
-        return wifiConnectionModel;
-    }
-
     public void query(String sqlQuery){
         getReadableDatabase().execSQL(sqlQuery);
     }
 
+    //Throw away
     public ArrayList<NicknameModel> getAllNicknames() {
-        String sqlQuery =
-                "Select " + Tables.Wifis.TABLE_NAME + "." + Tables.Wifis.COLUMN_WIFI_NAME + ", " +
-                        Tables.Nicknames.TABLE_NAME + "." + Tables.Nicknames.COLUMN_WIFI_NICKNAME +
-                        " From " + Tables.Wifis.TABLE_NAME +
-                        " Left Join " + Tables.Nicknames.TABLE_NAME +
-                        " On " + Tables.Wifis.TABLE_NAME + "." + Tables.Wifis.COLUMN_WIFI_NAME + " = " +
-                        Tables.Nicknames.TABLE_NAME + "." + Tables.Nicknames.COLUMN_WIFI_NICKNAME;
-
-        Log.d(TAG, sqlQuery);
-
-        Cursor cursor = getWritableDatabase().rawQuery(sqlQuery, new String[]{});
-        return cursorToNicknameModels(cursor);
-    }
-
-    public ArrayList<NicknameModel> cursorToNicknameModels(Cursor cursor){
-        ArrayList<NicknameModel> models = new ArrayList<>();
-
-        cursor.moveToFirst();
-        if(!cursor.isAfterLast()){
-            models.add(cursorToNicknameModel(cursor));
-            cursor.moveToNext();
-        }
-
-        return models;
-    }
-
-    public NicknameModel cursorToNicknameModel(Cursor cursor){
-        NicknameModel model = new NicknameModel();
-
-        model.wifiName = cursor.getString(
-                cursor.getColumnIndexOrThrow(Tables.Wifis.COLUMN_WIFI_NAME)
-        );
-
-        model.nickName = cursor.getString(
-                cursor.getColumnIndexOrThrow(Tables.Nicknames.COLUMN_WIFI_NICKNAME)
-        );
-
-        return model;
-    }
-
-    public void update(NicknameModel model) {
-//        SQLiteDatabase db = getWritableDatabase();
-//        db.update(
-//                Tables.Wifis.TABLE_NAME,
-//                toContentValues(model),
-//                Tables.Nicknames.COLUMN_WIFI_NAME + " = " + model.wifiName,
-//                new String[]{});
-        //db.insertWithOnConflict(SQLiteDatabase.CONFLICT_REPLACE)
-
-    }
-
-    public ContentValues toContentValues(NicknameModel model){
-
         return null;
     }
 }

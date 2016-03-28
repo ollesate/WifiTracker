@@ -21,9 +21,9 @@ public class WifiNicknamesDatabase extends SQLiteOpenHelper{
     private static final String TABLE_NAME = Tables.Nicknames.TABLE_NAME;
     private static final String TABLE_DELETE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     private static final String TABLE_CREATE = "CREATE TABLE " + TABLE_NAME + "("
-            + Tables.Nicknames.COLUMN_WIFI_NAME + TEXT +
+            + Tables.Nicknames.COLUMN_WIFI_NAME + TEXT_TYPE +
                 "FOREIGN KEY REFERENCES " + Tables.Wifis.TABLE_NAME + "(" + Tables.Wifis.COLUMN_WIFI_NAME + ")" + COMMA_SEP
-            + Tables.Nicknames.COLUMN_WIFI_NICKNAME + TEXT + "NOT NULL"
+            + Tables.Nicknames.COLUMN_WIFI_NICKNAME + TEXT_TYPE + "NOT NULL"
             + ");";
 
     private static final int DATABASE_VERSION = 1;

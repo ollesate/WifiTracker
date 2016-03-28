@@ -1,4 +1,4 @@
-package sjoholm.olof.wifitracker;
+package sjoholm.olof.wifitracker.Adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -10,6 +10,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import sjoholm.olof.wifitracker.Models.WifiConnectionModel;
+import sjoholm.olof.wifitracker.R;
 import sjoholm.olof.wifitracker.Utils.TimeUtil;
 
 /**

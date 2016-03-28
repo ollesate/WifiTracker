@@ -11,7 +11,7 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-import sjoholm.olof.wifitracker.HistoryItemAdapter;
+import sjoholm.olof.wifitracker.Adapters.HistoryItemAdapter;
 import sjoholm.olof.wifitracker.Models.WifiConnectionModel;
 import sjoholm.olof.wifitracker.R;
 import sjoholm.olof.wifitracker.Storage.WifiDatabase;
